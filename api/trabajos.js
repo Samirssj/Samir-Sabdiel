@@ -14,6 +14,15 @@ export default async function handler(req, res) {
   // Helper de respuesta
   const send = (status, payload) => res.status(status).json(payload);
 
+  // Extraer id desde el path (/api/trabajos/:id) o desde query (?id=)
+  const pathOnly = req.url.split('?')[0];
+  const segments = pathOnly.split('/').filter(Boolean); // ['api','trabajos',':id?']
+  const idFromPath = segments.length >= 3 ? parseInt(segments[2], 10) : NaN;
+  const idFromQuery = req.query?.id ? parseInt(req.query.id, 10) : NaN;
+  const id = Number.isFinite(idFromPath)
+    ? idFromPath
+    : (Number.isFinite(idFromQuery) ? idFromQuery : undefined);
+
   // POST /api/trabajos -> crear
   if (method === 'POST') {
     try {
@@ -55,16 +64,20 @@ export default async function handler(req, res) {
     }
   }
 
-  // GET /api/trabajos -> listar todos
+  // GET /api/trabajos -> listar todos | GET /api/trabajos/:id -> obtener uno
   if (method === 'GET') {
+    if (id !== undefined) {
+      const item = TRABAJOS.find(t => t.id === id);
+      if (!item) return send(404, { success: false, error: 'Trabajo no encontrado' });
+      return send(200, { success: true, data: item });
+    }
     return send(200, { success: true, data: TRABAJOS, count: TRABAJOS.length });
   }
 
-  // PUT /api/trabajos?id=123 -> actualizar
+  // PUT /api/trabajos/:id o ?id= -> actualizar
   if (method === 'PUT') {
     try {
-      const id = parseInt(req.query?.id, 10);
-      if (!id) return send(400, { success: false, error: 'Falta el parámetro id' });
+      if (id === undefined) return send(400, { success: false, error: 'Falta el parámetro id' });
 
       const idx = TRABAJOS.findIndex(t => t.id === id);
       if (idx === -1) return send(404, { success: false, error: 'Trabajo no encontrado' });
@@ -83,11 +96,10 @@ export default async function handler(req, res) {
     }
   }
 
-  // DELETE /api/trabajos?id=123 -> eliminar
+  // DELETE /api/trabajos/:id o ?id= -> eliminar
   if (method === 'DELETE') {
     try {
-      const id = parseInt(req.query?.id, 10);
-      if (!id) return send(400, { success: false, error: 'Falta el parámetro id' });
+      if (id === undefined) return send(400, { success: false, error: 'Falta el parámetro id' });
 
       const idx = TRABAJOS.findIndex(t => t.id === id);
       if (idx === -1) return send(404, { success: false, error: 'Trabajo no encontrado' });
