@@ -1,31 +1,104 @@
-// /api/trabajos.js
+// /api/trabajos.js - CRUD temporal en memoria (para pruebas en Vercel)
+// Nota: al ser serverless, este arreglo NO es persistente entre despliegues o re-inicios,
+// pero sirve para validar el flujo end-to-end desde el panel de administración.
+
+let TRABAJOS = [];
+let NEXT_ID = 1;
 
 export default async function handler(req, res) {
-  if (req.method === "POST") {
-    try {
-      const { categoria, curso, tecnologias, imagen, link } = req.body;
+  const method = req.method;
 
-      // Aquí deberías guardar en tu BD (ejemplo MySQL, Mongo, etc.)
-      // De momento solo devolvemos los datos para probar:
-      return res.status(200).json({
-        message: "Trabajo agregado correctamente",
-        data: { categoria, curso, tecnologias, imagen, link },
-      });
+  // Asegurar cabeceras JSON
+  res.setHeader('Content-Type', 'application/json');
+
+  // Helper de respuesta
+  const send = (status, payload) => res.status(status).json(payload);
+
+  // POST /api/trabajos -> crear
+  if (method === 'POST') {
+    try {
+      const {
+        categoria = '',
+        curso = '',
+        tecnologias = [],
+        imagen_url = '',
+        link_descarga = '',
+        titulo = '',
+        descripcion = '',
+        tipo = '',
+        fecha = new Date().toISOString().split('T')[0],
+      } = req.body || {};
+
+      if (!categoria || !curso || !Array.isArray(tecnologias)) {
+        return send(400, { error: 'Datos inválidos: categoria, curso y tecnologias (array) son requeridos' });
+      }
+
+      const nuevo = {
+        id: NEXT_ID++,
+        titulo,
+        descripcion,
+        categoria,
+        curso,
+        tipo,
+        tecnologias,
+        imagen_url,
+        link_descarga,
+        fecha,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+
+      TRABAJOS.unshift(nuevo);
+      return send(201, { success: true, data: nuevo, message: 'Trabajo agregado correctamente' });
     } catch (error) {
-      return res.status(500).json({ error: "Error al guardar el trabajo" });
+      return send(500, { success: false, error: 'Error al guardar el Trabajo' });
     }
   }
 
-  if (req.method === "GET") {
-    // Aquí devuelves todos los trabajos
-    return res.status(200).json({ message: "Lista de trabajos" });
+  // GET /api/trabajos -> listar todos
+  if (method === 'GET') {
+    return send(200, { success: true, data: TRABAJOS, count: TRABAJOS.length });
   }
 
-  if (req.method === "DELETE") {
-    // Aquí borras un trabajo
-    return res.status(200).json({ message: "Trabajo eliminado" });
+  // PUT /api/trabajos?id=123 -> actualizar
+  if (method === 'PUT') {
+    try {
+      const id = parseInt(req.query?.id, 10);
+      if (!id) return send(400, { success: false, error: 'Falta el parámetro id' });
+
+      const idx = TRABAJOS.findIndex(t => t.id === id);
+      if (idx === -1) return send(404, { success: false, error: 'Trabajo no encontrado' });
+
+      const updates = req.body || {};
+      TRABAJOS[idx] = {
+        ...TRABAJOS[idx],
+        ...updates,
+        id, // proteger id
+        updated_at: new Date().toISOString(),
+      };
+
+      return send(200, { success: true, data: TRABAJOS[idx], message: 'Trabajo actualizado correctamente' });
+    } catch (error) {
+      return send(500, { success: false, error: 'Error al actualizar el Trabajo' });
+    }
   }
 
-  // Si llega otro método no permitido
-  return res.status(405).json({ error: "Método no permitido" });
+  // DELETE /api/trabajos?id=123 -> eliminar
+  if (method === 'DELETE') {
+    try {
+      const id = parseInt(req.query?.id, 10);
+      if (!id) return send(400, { success: false, error: 'Falta el parámetro id' });
+
+      const idx = TRABAJOS.findIndex(t => t.id === id);
+      if (idx === -1) return send(404, { success: false, error: 'Trabajo no encontrado' });
+
+      const eliminado = TRABAJOS.splice(idx, 1)[0];
+      return send(200, { success: true, data: eliminado, message: 'Trabajo eliminado correctamente' });
+    } catch (error) {
+      return send(500, { success: false, error: 'Error al eliminar el Trabajo' });
+    }
+  }
+
+  // Método no permitido
+  return send(405, { success: false, error: 'Método no permitido' });
 }
