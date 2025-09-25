@@ -1,116 +1,149 @@
-// /api/trabajos.js - CRUD temporal en memoria (para pruebas en Vercel)
-// Nota: al ser serverless, este arreglo NO es persistente entre despliegues o re-inicios,
-// pero sirve para validar el flujo end-to-end desde el panel de administración.
+import { createClient } from '@supabase/supabase-js';
 
-let TRABAJOS = [];
-let NEXT_ID = 1;
+// Inicializar Supabase desde variables de entorno
+const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
+const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY;
+const supabase = (supabaseUrl && supabaseKey) ? createClient(supabaseUrl, supabaseKey, { auth: { persistSession: false } }) : null;
 
 export default async function handler(req, res) {
-  const method = req.method;
-
-  // Asegurar cabeceras JSON
   res.setHeader('Content-Type', 'application/json');
 
-  // Helper de respuesta
+  if (!supabase) {
+    return res.status(500).json({ success: false, error: 'Configuración de Supabase no encontrada' });
+  }
+
+  const method = req.method;
+  const pathOnly = req.url.split('?')[0];
+  const segments = pathOnly.split('/').filter(Boolean); // ['api','trabajos',':id?'] o ['api','trabajos','public']
+  const idFromPath = segments.length >= 3 ? parseInt(segments[2], 10) : NaN;
+  const id = Number.isFinite(idFromPath) ? idFromPath : undefined;
+
   const send = (status, payload) => res.status(status).json(payload);
 
-  // Extraer id desde el path (/api/trabajos/:id) o desde query (?id=)
-  const pathOnly = req.url.split('?')[0];
-  const segments = pathOnly.split('/').filter(Boolean); // ['api','trabajos',':id?']
-  const idFromPath = segments.length >= 3 ? parseInt(segments[2], 10) : NaN;
-  const idFromQuery = req.query?.id ? parseInt(req.query.id, 10) : NaN;
-  const id = Number.isFinite(idFromPath)
-    ? idFromPath
-    : (Number.isFinite(idFromQuery) ? idFromQuery : undefined);
+  const readBody = async () => {
+    if (req.body && typeof req.body === 'object') return req.body;
+    const chunks = [];
+    for await (const chunk of req) chunks.push(chunk);
+    const raw = Buffer.concat(chunks).toString('utf8');
+    try { return raw ? JSON.parse(raw) : {}; } catch { return {}; }
+  };
 
-  // POST /api/trabajos -> crear
-  if (method === 'POST') {
-    try {
+  try {
+    // GET /api/trabajos/public
+    if (method === 'GET' && segments[1] === 'trabajos' && segments[2] === 'public') {
+      const { data, error } = await supabase
+        .from('trabajos')
+        .select('id, titulo, descripcion, categoria, curso, tipo, imagen_url, link_descarga, tecnologias, fecha, created_at')
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      return send(200, { success: true, data: data || [], count: data?.length || 0 });
+    }
+
+    // GET /api/trabajos/:id
+    if (method === 'GET' && id !== undefined) {
+      const { data, error } = await supabase
+        .from('trabajos')
+        .select('*')
+        .eq('id', id)
+        .single();
+      if (error) {
+        if (error.code === 'PGRST116') return send(404, { success: false, error: 'Trabajo no encontrado' });
+        throw error;
+      }
+      return send(200, { success: true, data });
+    }
+
+    // GET /api/trabajos
+    if (method === 'GET') {
+      const { data, error } = await supabase
+        .from('trabajos')
+        .select('*')
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      return send(200, { success: true, data: data || [], count: data?.length || 0 });
+    }
+
+    // POST /api/trabajos
+    if (method === 'POST') {
+      const body = await readBody();
       const {
-        categoria = '',
-        curso = '',
-        tecnologias = [],
-        imagen_url = '',
-        link_descarga = '',
         titulo = '',
         descripcion = '',
+        categoria = '',
+        curso = '',
         tipo = '',
+        tecnologias = [],
+        link_descarga = '',
+        imagen_url = '',
         fecha = new Date().toISOString().split('T')[0],
-      } = req.body || {};
+      } = body || {};
 
-      if (!categoria || !curso || !Array.isArray(tecnologias)) {
-        return send(400, { error: 'Datos inválidos: categoria, curso y tecnologias (array) son requeridos' });
+      if (!titulo.trim() || !descripcion.trim() || !categoria || !curso || !tipo || !Array.isArray(tecnologias)) {
+        return send(400, { success: false, error: 'Datos inválidos' });
       }
 
-      const nuevo = {
-        id: NEXT_ID++,
+      const payload = {
         titulo,
         descripcion,
         categoria,
         curso,
         tipo,
         tecnologias,
-        imagen_url,
-        link_descarga,
+        link_descarga: link_descarga || '#',
+        imagen_url: imagen_url || null,
         fecha,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
       };
 
-      TRABAJOS.unshift(nuevo);
-      return send(201, { success: true, data: nuevo, message: 'Trabajo agregado correctamente' });
-    } catch (error) {
-      return send(500, { success: false, error: 'Error al guardar el Trabajo' });
+      const { data, error } = await supabase
+        .from('trabajos')
+        .insert([payload])
+        .select()
+        .single();
+
+      if (error) throw error;
+      return send(201, { success: true, message: 'Trabajo creado exitosamente', data });
     }
-  }
 
-  // GET /api/trabajos -> listar todos | GET /api/trabajos/:id -> obtener uno
-  if (method === 'GET') {
-    if (id !== undefined) {
-      const item = TRABAJOS.find(t => t.id === id);
-      if (!item) return send(404, { success: false, error: 'Trabajo no encontrado' });
-      return send(200, { success: true, data: item });
+    // PUT /api/trabajos/:id
+    if (method === 'PUT' && id !== undefined) {
+      const updates = await readBody();
+      updates.updated_at = new Date().toISOString();
+
+      const { data, error } = await supabase
+        .from('trabajos')
+        .update(updates)
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) {
+        if (error.code === 'PGRST116') return send(404, { success: false, error: 'Trabajo no encontrado' });
+        throw error;
+      }
+
+      return send(200, { success: true, message: 'Trabajo actualizado exitosamente', data });
     }
-    return send(200, { success: true, data: TRABAJOS, count: TRABAJOS.length });
-  }
 
-  // PUT /api/trabajos/:id o ?id= -> actualizar
-  if (method === 'PUT') {
-    try {
-      if (id === undefined) return send(400, { success: false, error: 'Falta el parámetro id' });
+    // DELETE /api/trabajos/:id
+    if (method === 'DELETE' && id !== undefined) {
+      const { data, error } = await supabase
+        .from('trabajos')
+        .delete()
+        .eq('id', id)
+        .select()
+        .single();
 
-      const idx = TRABAJOS.findIndex(t => t.id === id);
-      if (idx === -1) return send(404, { success: false, error: 'Trabajo no encontrado' });
+      if (error) {
+        if (error.code === 'PGRST116') return send(404, { success: false, error: 'Trabajo no encontrado' });
+        throw error;
+      }
 
-      const updates = req.body || {};
-      TRABAJOS[idx] = {
-        ...TRABAJOS[idx],
-        ...updates,
-        id, // proteger id
-        updated_at: new Date().toISOString(),
-      };
-
-      return send(200, { success: true, data: TRABAJOS[idx], message: 'Trabajo actualizado correctamente' });
-    } catch (error) {
-      return send(500, { success: false, error: 'Error al actualizar el Trabajo' });
+      return send(200, { success: true, message: 'Trabajo eliminado exitosamente', data });
     }
+
+    return send(405, { success: false, error: 'Método no permitido' });
+  } catch (err) {
+    console.error('API /api/trabajos error:', err);
+    return send(500, { success: false, error: 'Error del servidor', details: String(err?.message || err) });
   }
-
-  // DELETE /api/trabajos/:id o ?id= -> eliminar
-  if (method === 'DELETE') {
-    try {
-      if (id === undefined) return send(400, { success: false, error: 'Falta el parámetro id' });
-
-      const idx = TRABAJOS.findIndex(t => t.id === id);
-      if (idx === -1) return send(404, { success: false, error: 'Trabajo no encontrado' });
-
-      const eliminado = TRABAJOS.splice(idx, 1)[0];
-      return send(200, { success: true, data: eliminado, message: 'Trabajo eliminado correctamente' });
-    } catch (error) {
-      return send(500, { success: false, error: 'Error al eliminar el Trabajo' });
-    }
-  }
-
-  // Método no permitido
-  return send(405, { success: false, error: 'Método no permitido' });
 }
