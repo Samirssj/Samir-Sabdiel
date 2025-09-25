@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const API_BASE_URL = '/api';
 
 // Crear instancia de axios
 const api = axios.create({
@@ -76,7 +76,7 @@ export interface ApiResponse<T> {
 export const authService = {
   login: async (credentials: LoginCredentials): Promise<LoginResponse> => {
     // Llama al endpoint serverless de Vercel en la misma URL del frontend
-    const response = await axios.post('/api/login', credentials, {
+    const response = await axios.post('/login', credentials, {
       headers: { 'Content-Type': 'application/json' }
     });
     return response.data as LoginResponse;
