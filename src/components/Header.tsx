@@ -30,7 +30,7 @@ const Header = () => {
             className="text-xl font-bold text-gradient cursor-pointer"
             onClick={() => scrollToSection('hero')}
           >
-            Rojas Tamara
+            RTS Blog 
           </div>
 
           {/* Desktop Navigation */}
@@ -44,6 +44,14 @@ const Header = () => {
                 {item.label}
               </button>
             ))}
+
+            {/* Admin Button */}
+            <button
+              onClick={() => window.location.href = '/admin/login'}
+              className="text-muted-foreground hover:text-primary transition-colors duration-200 font-medium"
+            >
+              Admin
+            </button>
           </div>
 
           {/* Mobile Menu Button */}

@@ -1,4 +1,4 @@
-import profileImage from "@/assets/profile-image.jpg";
+import profileImage from "@/assets/samir-gohan.png";
 
 const About = () => {
   return (
@@ -27,7 +27,7 @@ const About = () => {
             
             <div className="space-y-4 text-lg text-muted-foreground leading-relaxed">
               <p>
-                ¡Hola! Soy <span className="text-primary font-semibold">Rojas Tamara Samir Sabiel</span>, 
+                ¡Hola! Soy <span className="text-primary font-semibold">Rojas Tamara Samir Sabdiel</span>, 
                 estudiante de la Universidad Peruana Los Andes, apasionado por la programación y el desarrollo tecnológico.
               </p>
               
@@ -46,7 +46,7 @@ const About = () => {
             <div className="pt-4">
               <h3 className="text-xl font-semibold text-primary mb-3">Áreas de interés:</h3>
               <div className="flex flex-wrap gap-3">
-                {['Desarrollo Web', 'Bases de Datos', 'Java', 'PHP', 'JavaScript', 'Investigación'].map((skill) => (
+                {['Desarrollo Web', 'Bases de Datos', 'Java', 'Ciberseguridad', 'JavaScript', 'Investigación'].map((skill) => (
                   <span 
                     key={skill}
                     className="px-4 py-2 bg-card border border-primary/20 rounded-xl text-sm font-medium hover:border-primary/40 transition-colors"

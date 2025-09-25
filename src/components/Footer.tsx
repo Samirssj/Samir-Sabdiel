@@ -8,14 +8,14 @@ const Footer = () => {
     {
       icon: <Mail className="h-4 w-4" />,
       label: "Correo Institucional",
-      value: "tamara.rojas@upla.edu.pe",
-      link: "mailto:tamara.rojas@upla.edu.pe"
+      value: "s00057h@upla.edu.pe",
+      link: "mailto:s00057h@upla.edu.pe"
     },
     {
       icon: <Mail className="h-4 w-4" />,
       label: "Correo Personal", 
-      value: "rojastamara.dev@gmail.com",
-      link: "mailto:rojastamara.dev@gmail.com"
+      value: "samirrojas6042@gmail.com",
+      link: "mailto:samirrojas6042@gmail.com"
     },
     {
       icon: <MapPin className="h-4 w-4" />,
@@ -26,7 +26,7 @@ const Footer = () => {
     {
       icon: <Calendar className="h-4 w-4" />,
       label: "Año Académico",
-      value: "2024 - En curso",
+      value: "2023 - En curso",
       link: null
     }
   ];
@@ -53,7 +53,7 @@ const Footer = () => {
           {/* About Section */}
           <div className="lg:col-span-2 space-y-4">
             <h3 className="text-2xl font-bold text-gradient">
-              Rojas Tamara Samir Sabiel
+              Rojas Tamara Samir Sabdiel
             </h3>
             <p className="text-muted-foreground leading-relaxed max-w-md">
               Estudiante de la Universidad Peruana Los Andes, enfocado en desarrollo de software 
@@ -122,7 +122,7 @@ const Footer = () => {
             asChild
             className="btn-primary-glow rounded-xl"
           >
-            <a href="mailto:rojastamara.dev@gmail.com">
+            <a href="mailto:samirrojas6042@gmail.com">
               <Mail className="mr-2 h-4 w-4" />
               Enviar Email
             </a>
@@ -134,7 +134,7 @@ const Footer = () => {
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <div className="text-center md:text-left">
               <p className="text-muted-foreground text-sm">
-                © {currentYear} Rojas Tamara Samir Sabiel. Todos los derechos reservados.
+                © {currentYear} Rojas Tamara Samir Sabdiel. Todos los derechos reservados.
               </p>
               <p className="text-muted-foreground text-xs mt-1">
                 Blog Académico - Universidad Peruana Los Andes
@@ -142,7 +142,7 @@ const Footer = () => {
             </div>
             
             <div className="flex items-center space-x-4 text-xs text-muted-foreground">
-              <span>Hecho con ❤️ para compartir conocimiento</span>
+              <span>Hecho con 🖤 para compartir conocimiento</span>
               <div className="flex items-center space-x-1">
                 <span className="w-2 h-2 bg-green-500 rounded-full"></span>
                 <span>Actualizado {currentYear}</span>

@@ -1,103 +1,114 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Download, Search, BookOpen, Code2, Database } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { useToast } from "@/hooks/use-toast";
+import { trabajosService, type Trabajo } from "@/services/api";
 
 const Works = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
+  const [works, setWorks] = useState<Trabajo[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const { toast } = useToast();
 
-  const works = [
-    {
-      id: 1,
-      title: "Sistema de Gestión Universitaria",
-      description: "Aplicación Java con base de datos MySQL para gestionar estudiantes, cursos y calificaciones. Incluye interfaz gráfica y reportes.",
-      category: "java",
-      course: "Programación Orientada a Objetos",
-      type: "Proyecto Final",
-      downloadUrl: "#",
-      tech: ["Java", "MySQL", "Swing"],
-      icon: <Code2 className="h-5 w-5" />
-    },
-    {
-      id: 2,
-      title: "Sitio Web Corporativo",
-      description: "Desarrollo completo de sitio web responsivo usando HTML, CSS, JavaScript y PHP. Incluye panel administrativo y base de datos.",
-      category: "web",
-      course: "Desarrollo Web",
-      type: "Trabajo Grupal",
-      downloadUrl: "#",
-      tech: ["HTML", "CSS", "JavaScript", "PHP"],
-      icon: <Database className="h-5 w-5" />
-    },
-    {
-      id: 3,
-      title: "Análisis de Algoritmos de Ordenamiento",
-      description: "Investigación comparativa sobre eficiencia de algoritmos. Incluye implementaciones, análisis de complejidad y documentación completa.",
-      category: "research",
-      course: "Algoritmos y Estructuras de Datos",
-      type: "Investigación",
-      downloadUrl: "#",
-      tech: ["Java", "Python", "LaTeX"],
-      icon: <BookOpen className="h-5 w-5" />
-    },
-    {
-      id: 4,
-      title: "Base de Datos Biblioteca",
-      description: "Diseño e implementación de base de datos para sistema bibliotecario. Incluye modelado ER, normalización y procedimientos almacenados.",
-      category: "database",
-      course: "Base de Datos I",
-      type: "Proyecto Individual",
-      downloadUrl: "#",
-      tech: ["MySQL", "SQL", "ERD"],
-      icon: <Database className="h-5 w-5" />
-    },
-    {
-      id: 5,
-      title: "Calculadora Científica",
-      description: "Aplicación desktop en Java con funciones matemáticas avanzadas. Interfaz intuitiva y manejo de expresiones complejas.",
-      category: "java",
-      course: "Programación I",
-      type: "Proyecto Intermedio",
-      downloadUrl: "#",
-      tech: ["Java", "Swing", "Math"],
-      icon: <Code2 className="h-5 w-5" />
-    },
-    {
-      id: 6,
-      title: "Portafolio Personal Web",
-      description: "Desarrollo de portafolio personal usando tecnologías modernas. Diseño responsivo y optimizado para SEO.",
-      category: "web",
-      course: "Taller de Programación Web",
-      type: "Proyecto Personal",
-      downloadUrl: "#",
-      tech: ["React", "Tailwind", "Vite"],
-      icon: <Database className="h-5 w-5" />
+  // Cargar trabajos desde la API
+  useEffect(() => {
+    loadWorks();
+  }, []);
+
+  const loadWorks = async () => {
+    try {
+      setIsLoading(true);
+      const response = await trabajosService.getPublic();
+
+      if (response.success && response.data) {
+        setWorks(response.data);
+      } else {
+        setWorks([]); // Si la API no responde, no mostrar trabajos
+      }
+    } catch (error) {
+      console.error('Error loading works:', error);
+      toast({
+        title: "Error",
+        description: "No se pudieron cargar los trabajos",
+        variant: "destructive"
+      });
+      setWorks([]); // No usar datos estáticos como fallback
+    } finally {
+      setIsLoading(false);
     }
-  ];
+  };
 
   const categories = [
     { id: "all", name: "Todos", count: works.length },
-    { id: "java", name: "Java", count: works.filter(w => w.category === "java").length },
-    { id: "web", name: "Desarrollo Web", count: works.filter(w => w.category === "web").length },
-    { id: "database", name: "Bases de Datos", count: works.filter(w => w.category === "database").length },
-    { id: "research", name: "Investigación", count: works.filter(w => w.category === "research").length }
+    { id: "java", name: "Java", count: works.filter(w => w.categoria === "java").length },
+    { id: "web", name: "Desarrollo Web", count: works.filter(w => w.categoria === "web").length },
+    { id: "database", name: "Bases de Datos", count: works.filter(w => w.categoria === "database").length },
+    { id: "research", name: "Investigación", count: works.filter(w => w.categoria === "research").length }
   ];
 
   const filteredWorks = works.filter(work => {
-    const matchesSearch = work.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         work.course.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         work.tech.some(t => t.toLowerCase().includes(searchTerm.toLowerCase()));
-    const matchesCategory = selectedCategory === "all" || work.category === selectedCategory;
+    const matchesSearch = work.titulo.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         work.curso.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         work.tecnologias.some(t => t.toLowerCase().includes(searchTerm.toLowerCase()));
+    const matchesCategory = selectedCategory === "all" || work.categoria === selectedCategory;
     return matchesSearch && matchesCategory;
   });
 
-  const handleDownload = (work: typeof works[0]) => {
-    // Simulated download - in real app would trigger actual file download
-    alert(`Descargando: ${work.title}`);
+  const handleDownload = (work: Trabajo) => {
+    if (work.link_descarga && work.link_descarga !== '#') {
+      window.open(work.link_descarga, '_blank');
+    } else {
+      toast({
+        title: "Descarga no disponible",
+        description: `El enlace de descarga para "${work.titulo}" no está disponible`,
+        variant: "destructive"
+      });
+    }
   };
+
+  const getWorkIcon = (categoria: string) => {
+    switch (categoria) {
+      case 'java':
+        return <Code2 className="h-5 w-5" />;
+      case 'web':
+        return <Database className="h-5 w-5" />;
+      case 'database':
+        return <Database className="h-5 w-5" />;
+      case 'research':
+        return <BookOpen className="h-5 w-5" />;
+      default:
+        return <Code2 className="h-5 w-5" />;
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <section id="works" className="section-padding bg-background">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl md:text-5xl font-bold mb-4">
+              <span className="text-gradient">Mis Trabajos de Universidad</span>
+            </h2>
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+              Repositorio de proyectos académicos disponibles para descarga libre. 
+              Desde programación hasta investigación, aquí encontrarás recursos educativos de calidad.
+            </p>
+          </div>
+          
+          <div className="flex items-center justify-center py-12">
+            <div className="text-center">
+              <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+              <p className="text-muted-foreground">Cargando trabajos...</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section id="works" className="section-padding bg-background">
@@ -154,32 +165,32 @@ const Works = () => {
               <CardHeader className="pb-4">
                 <div className="flex items-start justify-between mb-2">
                   <div className="p-2 bg-primary/10 rounded-lg">
-                    {work.icon}
+                    {getWorkIcon(work.categoria)}
                   </div>
                   <Badge variant="secondary" className="bg-primary/20 text-primary border-primary/30">
-                    {work.type}
+                    {work.tipo}
                   </Badge>
                 </div>
                 <CardTitle className="text-lg font-bold text-foreground line-clamp-2">
-                  {work.title}
+                  {work.titulo}
                 </CardTitle>
                 <CardDescription className="text-primary font-medium text-sm">
-                  {work.course}
+                  {work.curso}
                 </CardDescription>
               </CardHeader>
               
               <CardContent className="flex-1 flex flex-col justify-between space-y-4">
                 <p className="text-muted-foreground text-sm leading-relaxed line-clamp-3">
-                  {work.description}
+                  {work.descripcion}
                 </p>
                 
                 <div className="space-y-3">
                   <div>
                     <h4 className="text-xs font-semibold text-primary mb-2">Tecnologías:</h4>
                     <div className="flex flex-wrap gap-1">
-                      {work.tech.map((tech) => (
+                      {work.tecnologias.map((tech, index) => (
                         <span 
-                          key={tech}
+                          key={index}
                           className="px-2 py-1 bg-primary/10 text-primary text-xs rounded-md border border-primary/20"
                         >
                           {tech}
@@ -192,9 +203,10 @@ const Works = () => {
                     onClick={() => handleDownload(work)}
                     className="w-full btn-primary-glow rounded-xl"
                     size="sm"
+                    disabled={!work.link_descarga || work.link_descarga === '#'}
                   >
                     <Download className="mr-2 h-4 w-4" />
-                    Descargar Trabajo
+                    {work.link_descarga && work.link_descarga !== '#' ? 'Descargar Trabajo' : 'Próximamente'}
                   </Button>
                 </div>
               </CardContent>
@@ -203,7 +215,7 @@ const Works = () => {
         </div>
 
         {/* No results message */}
-        {filteredWorks.length === 0 && (
+        {filteredWorks.length === 0 && !isLoading && (
           <div className="text-center py-12">
             <div className="text-6xl mb-4">🔍</div>
             <h3 className="text-xl font-semibold text-muted-foreground mb-2">
