@@ -1,16 +1,16 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Eye, EyeOff, Lock, User, LogIn } from 'lucide-react';
+import { Eye, EyeOff, Lock, Mail, LogIn } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { authService, setAuthData, type LoginCredentials } from '@/services/api';
+import { authService, type LoginCredentials } from '@/services/api';
 
 const AdminLogin = () => {
   const [credentials, setCredentials] = useState<LoginCredentials>({
-    usuario: '',
+    email: '',
     password: ''
   });
   const [showPassword, setShowPassword] = useState(false);
@@ -21,10 +21,10 @@ const AdminLogin = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!credentials.usuario || !credentials.password) {
+    if (!credentials.email || !credentials.password) {
       toast({
         title: "Error",
-        description: "Por favor completa todos los campos",
+        description: "Por favor completa email y contraseña",
         variant: "destructive"
       });
       return;
@@ -33,13 +33,10 @@ const AdminLogin = () => {
     setIsLoading(true);
 
     try {
-      console.log('🔐 Intentando login con:', credentials.usuario);
+      console.log('🔐 Intentando login con:', credentials.email);
       const response = await authService.login(credentials);
 
       if (response.success) {
-        // Guardar un token simple en localStorage para controlar acceso
-        setAuthData('static_admin_token', { usuario: credentials.usuario });
-
         toast({
           title: "¡Bienvenido!",
           description: response.message || "Has iniciado sesión correctamente",
@@ -103,17 +100,17 @@ const AdminLogin = () => {
           
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Usuario */}
+              {/* Email */}
               <div className="space-y-2">
-                <Label htmlFor="usuario">Usuario</Label>
+                <Label htmlFor="email">Email</Label>
                 <div className="relative">
-                  <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
-                    id="usuario"
-                    type="text"
-                    placeholder="Ingresa tu usuario"
-                    value={credentials.usuario}
-                    onChange={handleInputChange('usuario')}
+                    id="email"
+                    type="email"
+                    placeholder="Ingresa tu email"
+                    value={credentials.email || ''}
+                    onChange={handleInputChange('email')}
                     className="pl-10 bg-background border-primary/20 focus:border-primary"
                     disabled={isLoading}
                     required

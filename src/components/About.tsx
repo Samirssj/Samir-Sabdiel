@@ -27,7 +27,7 @@ const About = () => {
             
             <div className="space-y-4 text-lg text-muted-foreground leading-relaxed">
               <p>
-                ¡Hola! Soy <span className="text-primary font-semibold">Rojas Tamara Samir Sabdiel</span>, 
+                ¡Hola! Soy <span className="text-primary font-semibold">Samir</span>, 
                 estudiante de la Universidad Peruana Los Andes, apasionado por la programación y el desarrollo tecnológico.
               </p>
               

@@ -198,14 +198,21 @@ const TrabajoForm = () => {
     setIsLoading(true);
 
     try {
+      // Pedir contraseña de administrador antes de mutar
+      const adminPassword = window.prompt('Ingresa tu contraseña para confirmar la operación:');
+      if (!adminPassword) {
+        setIsLoading(false);
+        return;
+      }
+
       if (isEditing && id) {
-        await trabajosService.update(parseInt(id), formData);
+        await trabajosService.update(parseInt(id), formData, adminPassword);
         toast({
           title: "Trabajo actualizado",
           description: "El trabajo ha sido actualizado correctamente"
         });
       } else {
-        await trabajosService.create(formData);
+        await trabajosService.create(formData, adminPassword);
         toast({
           title: "Trabajo creado",
           description: "El trabajo ha sido creado correctamente"

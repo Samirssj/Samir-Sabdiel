@@ -13,10 +13,10 @@ const Hero = () => {
     <section id="hero" className="min-h-screen bg-gradient-hero flex items-center justify-center section-padding pt-20">
       <div className="max-w-4xl mx-auto text-center">
         <div className="space-y-6">
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold leading-tight">
-            <span className="text-foreground">Blog Académico de</span>
+          <h1 className="text-4xl md:text-6xl lg:text-7xl leading-tight">
+            <span className="text-foreground">¡Bienvenido!</span>
             <br />
-            <span className="text-gradient">Rojas Tamara Samir Sabdiel</span>
+            <span className="text-foreground">Te presento mi blog Académico</span>
           </h1>
           
           <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">

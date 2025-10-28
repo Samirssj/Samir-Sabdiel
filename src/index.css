@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -5,8 +7,6 @@
 /* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
 All colors MUST be HSL.
 */
-
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
 @layer base {
   :root {
@@ -58,21 +58,21 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-background text-foreground font-inter;
+    @apply bg-background text-foreground font-anthropic;
   }
 }
 
 @layer components {
   .card-glow {
-    @apply shadow-[0_10px_30px_-10px_hsl(225_100%_50%_/_0.2)] hover:shadow-[0_0_40px_hsl(225_100%_50%_/_0.3)] transition-all duration-300;
+    @apply shadow-none hover:shadow-none transition-all duration-200 border border-border;
   }
   
   .btn-primary-glow {
-    @apply bg-primary hover:bg-[hsl(225_100%_60%)] hover:shadow-[0_0_20px_hsl(225_100%_50%_/_0.5)] transition-all duration-200;
+    @apply bg-primary hover:bg-[hsl(225_100%_56%)] transition-colors duration-200;
   }
   
   .text-gradient {
-    @apply bg-gradient-to-r from-primary to-[hsl(225_100%_60%)] bg-clip-text text-transparent;
+    @apply text-foreground;
   }
   
   .section-padding {

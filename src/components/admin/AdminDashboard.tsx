@@ -112,8 +112,11 @@ const AdminDashboard = () => {
   const handleDelete = async (trabajo: Trabajo) => {
     try {
       if (!trabajo.id) return;
-      
-      await trabajosService.delete(trabajo.id);
+      // Pedir contraseña de administrador
+      const adminPassword = window.prompt('Ingresa tu contraseña para confirmar la eliminación:');
+      if (!adminPassword) return;
+
+      await trabajosService.delete(trabajo.id, adminPassword);
       
       toast({
         title: "Trabajo eliminado",

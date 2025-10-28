@@ -15,6 +15,7 @@ export default {
     extend: {
       fontFamily: {
         'inter': ['Inter', 'sans-serif'],
+        'anthropic': ['anthropicSerif', 'Georgia', 'serif'],
       },
       colors: {
         border: "hsl(var(--border))",

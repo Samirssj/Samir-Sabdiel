@@ -26,7 +26,7 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
 
       // Verificar token con el servidor
       const response = await authService.verify();
-      setIsValid(response.valid);
+      setIsValid(!!response.isAdmin);
     } catch (error) {
       console.error('Auth verification failed:', error);
       setIsValid(false);
@@ -49,9 +49,9 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     );
   }
 
-  // Redirigir al login si no está autenticado
+  // Redirigir al inicio si no es admin
   if (!isValid) {
-    return <Navigate to="/admin/login" state={{ from: location }} replace />;
+    return <Navigate to="/" state={{ from: location }} replace />;
   }
 
   // Renderizar componente protegido
