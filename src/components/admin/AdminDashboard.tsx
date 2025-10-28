@@ -11,7 +11,9 @@ import {
   Download,
   Calendar,
   User,
-  BookOpen
+  BookOpen,
+  Github,
+  Play
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -165,31 +167,31 @@ const AdminDashboard = () => {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="bg-card border-b border-border sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-6 py-4">
+        <div className="max-w-7xl mx-auto px-6 py-2">
           <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gradient">Panel de Administración</h1>
-              <p className="text-muted-foreground">
-                Bienvenido, <span className="font-medium">{user?.usuario}</span>
-              </p>
+            <div className="flex items-center gap-2">
+              <User className="w-5 h-5 text-primary" />
+              <h1 className="text-xl font-semibold">Admin</h1>
             </div>
-            
-            <div className="flex items-center space-x-4">
+
+            <div className="flex items-center space-x-2">
               <Button
                 onClick={() => navigate('/admin/trabajos/new')}
-                className="btn-primary-glow"
+                className="btn-primary-glow px-3"
+                aria-label="Nuevo trabajo"
+                title="Nuevo trabajo"
               >
-                <Plus className="w-4 h-4 mr-2" />
-                Nuevo Trabajo
+                <Plus className="w-4 h-4" />
               </Button>
               
               <Button
                 variant="outline"
                 onClick={handleLogout}
-                className="border-red-200 text-red-600 hover:bg-red-50"
+                className="border-red-200 text-red-600 hover:bg-red-50 px-3"
+                aria-label="Cerrar sesión"
+                title="Cerrar sesión"
               >
-                <LogOut className="w-4 h-4 mr-2" />
-                Cerrar Sesión
+                <LogOut className="w-4 h-4" />
               </Button>
             </div>
           </div>
@@ -341,13 +343,32 @@ const AdminDashboard = () => {
                     </div>
                     
                     <div className="flex items-center space-x-2">
-                      {trabajo.link_descarga && trabajo.link_descarga !== '#' && (
+                      {/* Ver repo en GitHub (usa link_repo_github o fallback si aún usas legacy) */}
+                      {((trabajo as any).link_repo_github || ((trabajo as any).link_descarga?.includes?.('github.com'))) && (
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => window.open(trabajo.link_descarga, '_blank')}
+                          onClick={() => {
+                            const repo = (trabajo as any).link_repo_github || (trabajo as any).link_descarga;
+                            if (repo) window.open(repo, '_blank');
+                          }}
+                          aria-label="Ver en GitHub"
+                          title="Ver en GitHub"
                         >
-                          <Download className="w-4 h-4" />
+                          <Github className="w-4 h-4" />
+                        </Button>
+                      )}
+
+                      {/* Probar (demo) */}
+                      {(trabajo as any).url_prueba && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => window.open((trabajo as any).url_prueba, '_blank')}
+                          aria-label="Probar"
+                          title="Probar"
+                        >
+                          <Play className="w-4 h-4" />
                         </Button>
                       )}
                       

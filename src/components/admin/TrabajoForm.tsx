@@ -326,23 +326,14 @@ const TrabajoForm = () => {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {/* Categoría */}
                 <div className="space-y-2">
-                  <Label>Categoría *</Label>
-                  <Select
+                  <Label htmlFor="categoria">Categoría *</Label>
+                  <Input
+                    id="categoria"
                     value={formData.categoria}
-                    onValueChange={handleSelectChange('categoria')}
-                  >
-                    <SelectTrigger className={errors.categoria ? 'border-red-500' : ''}>
-                      <SelectValue placeholder="Seleccionar categoría" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="java">Java</SelectItem>
-                      <SelectItem value="web">Desarrollo Web</SelectItem>
-                      <SelectItem value="database">Base de Datos</SelectItem>
-                      <SelectItem value="research">Investigación</SelectItem>
-                      <SelectItem value="mobile">Móvil</SelectItem>
-                      <SelectItem value="other">Otro</SelectItem>
-                    </SelectContent>
-                  </Select>
+                    onChange={handleInputChange('categoria')}
+                    placeholder="Ej: web, java, database, investigación..."
+                    className={errors.categoria ? 'border-red-500' : ''}
+                  />
                   {errors.categoria && (
                     <p className="text-sm text-red-500">{errors.categoria}</p>
                   )}
@@ -364,6 +355,7 @@ const TrabajoForm = () => {
                       <SelectItem value="Trabajo Grupal">Trabajo Grupal</SelectItem>
                       <SelectItem value="Proyecto Intermedio">Proyecto Intermedio</SelectItem>
                       <SelectItem value="Proyecto Final">Proyecto Final</SelectItem>
+                      <SelectItem value="Proyecto Personal">Proyecto Personal</SelectItem>
                       <SelectItem value="Investigación">Investigación</SelectItem>
                       <SelectItem value="Práctica">Práctica</SelectItem>
                     </SelectContent>
