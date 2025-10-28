@@ -35,6 +35,7 @@ const TrabajoForm = () => {
     tipo: '',
     imagen_url: '',
     link_descarga: '',
+    url_prueba: '',
     tecnologias: [],
     fecha: new Date().toISOString().split('T')[0]
   });
@@ -63,6 +64,7 @@ const TrabajoForm = () => {
           tipo: trabajo.tipo,
           imagen_url: trabajo.imagen_url || '',
           link_descarga: trabajo.link_descarga || '',
+          url_prueba: (trabajo as any).url_prueba || '',
           tecnologias: trabajo.tecnologias,
           fecha: trabajo.fecha || new Date().toISOString().split('T')[0]
         });
@@ -459,9 +461,9 @@ const TrabajoForm = () => {
                   )}
                 </div>
 
-                {/* Link de descarga */}
+                {/* Link de repo en GitHub */}
                 <div className="space-y-2">
-                  <Label htmlFor="link_descarga">Link de Descarga</Label>
+                  <Label htmlFor="link_descarga">Link de repo en GitHub</Label>
                   <Input
                     id="link_descarga"
                     value={formData.link_descarga}
@@ -473,6 +475,21 @@ const TrabajoForm = () => {
                     <p className="text-sm text-red-500">{errors.link_descarga}</p>
                   )}
                 </div>
+              </div>
+
+              {/* URL de Prueba */}
+              <div className="space-y-2">
+                <Label htmlFor="url_prueba">URL de Prueba</Label>
+                <Input
+                  id="url_prueba"
+                  value={formData.url_prueba}
+                  onChange={handleInputChange('url_prueba')}
+                  placeholder="https://miapp.vercel.app/"
+                  className={errors.url_prueba ? 'border-red-500' : ''}
+                />
+                {errors.url_prueba && (
+                  <p className="text-sm text-red-500">{errors.url_prueba}</p>
+                )}
               </div>
 
               {/* Botones */}

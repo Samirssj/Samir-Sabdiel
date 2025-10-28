@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { Download, Search, BookOpen, Code2, Database } from "lucide-react";
+import { Download, Search, BookOpen, Code2, Database, Github, Play } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -58,13 +59,25 @@ const Works = () => {
     return matchesSearch && matchesCategory;
   });
 
-  const handleDownload = (work: Trabajo) => {
+  const openGithub = (work: Trabajo) => {
     if (work.link_descarga && work.link_descarga !== '#') {
       window.open(work.link_descarga, '_blank');
     } else {
       toast({
-        title: "Descarga no disponible",
-        description: `El enlace de descarga para "${work.titulo}" no está disponible`,
+        title: "Repositorio no disponible",
+        description: `El enlace del repositorio para "${work.titulo}" no está disponible`,
+        variant: "destructive"
+      });
+    }
+  };
+
+  const openDemo = (work: Trabajo) => {
+    if ((work as any).url_prueba) {
+      window.open((work as any).url_prueba as string, '_blank');
+    } else {
+      toast({
+        title: "URL de prueba no disponible",
+        description: `La URL de prueba para "${work.titulo}" no está disponible`,
         variant: "destructive"
       });
     }
@@ -115,8 +128,8 @@ const Works = () => {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center mb-12">
-          <h2 className="text-4xl md:text-5xl font-bold mb-4">
-            <span className="text-gradient">Mis Trabajos de Universidad</span>
+          <h2 className="text-4xl md:text-5xl font-semibold mb-4 text-foreground">
+            Mis Trabajos de Universidad
           </h2>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
             Repositorio de proyectos académicos disponibles para descarga libre. 
@@ -160,7 +173,7 @@ const Works = () => {
           {filteredWorks.map((work) => (
             <Card 
               key={work.id}
-              className="card-glow bg-card border-primary/10 hover:border-primary/30 transition-all duration-300 h-full flex flex-col"
+              className="bg-card border border-border hover:border-primary/30 transition-colors duration-200 h-full flex flex-col rounded-2xl"
             >
               <CardHeader className="pb-4">
                 <div className="flex items-start justify-between mb-2">
@@ -171,7 +184,7 @@ const Works = () => {
                     {work.tipo}
                   </Badge>
                 </div>
-                <CardTitle className="text-lg font-bold text-foreground line-clamp-2">
+                <CardTitle className="text-lg font-semibold text-foreground line-clamp-2">
                   {work.titulo}
                 </CardTitle>
                 <CardDescription className="text-primary font-medium text-sm">
@@ -199,15 +212,27 @@ const Works = () => {
                     </div>
                   </div>
                   
-                  <Button 
-                    onClick={() => handleDownload(work)}
-                    className="w-full btn-primary-glow rounded-xl"
-                    size="sm"
-                    disabled={!work.link_descarga || work.link_descarga === '#'}
-                  >
-                    <Download className="mr-2 h-4 w-4" />
-                    {work.link_descarga && work.link_descarga !== '#' ? 'Descargar Trabajo' : 'Próximamente'}
-                  </Button>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <Button 
+                      onClick={() => openGithub(work)}
+                      className="w-full rounded-xl bg-primary hover:bg-[hsl(225_100%_56%)] transition-colors"
+                      size="sm"
+                      disabled={!work.link_descarga || work.link_descarga === '#'}
+                    >
+                      <Github className="mr-2 h-4 w-4" />
+                      Ver en Github
+                    </Button>
+                    <Button 
+                      variant="outline"
+                      onClick={() => openDemo(work)}
+                      className="w-full rounded-xl border-border hover:border-primary/40"
+                      size="sm"
+                      disabled={!((work as any).url_prueba)}
+                    >
+                      <Play className="mr-2 h-4 w-4" />
+                      Probar
+                    </Button>
+                  </div>
                 </div>
               </CardContent>
             </Card>

@@ -23,6 +23,7 @@ export interface Trabajo {
   tipo: string;
   imagen_url?: string;
   link_descarga?: string;
+  url_prueba?: string;
   tecnologias: string[];
   fecha?: string;
   created_at?: string;
@@ -98,7 +99,7 @@ export const trabajosService = {
   getPublic: async (): Promise<ApiResponse<Trabajo[]>> => {
     const { data, error } = await supabase
       .from('trabajos')
-      .select('id, titulo, descripcion, categoria, curso, tipo, imagen_url, link_descarga, tecnologias, fecha, created_at')
+      .select('id, titulo, descripcion, categoria, curso, tipo, imagen_url, link_descarga, url_prueba, tecnologias, fecha, created_at')
       .order('created_at', { ascending: false });
     if (error) return { success: false, error: error.message };
     return { success: true, data: data || [], count: data?.length };
@@ -132,6 +133,7 @@ export const trabajosService = {
       p_tecnologias: trabajo.tecnologias,
       p_link_descarga: trabajo.link_descarga || '',
       p_imagen_url: trabajo.imagen_url || '',
+      p_url_prueba: trabajo.url_prueba || '',
       p_fecha: trabajo.fecha || null,
     });
     if (error) return { success: false, error: error.message } as any;
@@ -156,6 +158,7 @@ export const trabajosService = {
       p_tecnologias: trabajo.tecnologias ?? null,
       p_link_descarga: trabajo.link_descarga ?? null,
       p_imagen_url: trabajo.imagen_url ?? null,
+      p_url_prueba: trabajo.url_prueba ?? null,
       p_fecha: (trabajo as any).fecha ?? null,
     });
     if (error) return { success: false, error: error.message } as any;

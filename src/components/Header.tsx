@@ -44,7 +44,7 @@ const Header = () => {
         <div className="flex items-center justify-between">
           {/* Logo */}
           <div 
-            className="text-xl font-bold text-gradient cursor-pointer"
+            className="text-xl font-bold text-[#0040ff] cursor-pointer"
             onClick={() => scrollToSection('hero')}
           >
             RTS Blog 
