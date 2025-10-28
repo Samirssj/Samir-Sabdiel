@@ -15,6 +15,16 @@ import {
 } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { trabajosService, type Trabajo } from '@/services/api';
 
 const TrabajoForm = () => {
@@ -26,6 +36,8 @@ const TrabajoForm = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingData, setIsLoadingData] = useState(isEditing);
   const [newTech, setNewTech] = useState('');
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [adminPassword, setAdminPassword] = useState('');
   
   const [formData, setFormData] = useState<Omit<Trabajo, 'id'>>({
     titulo: '',
@@ -197,42 +209,33 @@ const TrabajoForm = () => {
       return;
     }
 
+    // abrir modal para contraseña
+    setConfirmOpen(true);
+  };
+
+  const performSave = async () => {
     setIsLoading(true);
-
     try {
-      // Pedir contraseña de administrador antes de mutar
-      const adminPassword = window.prompt('Ingresa tu contraseña para confirmar la operación:');
-      if (!adminPassword) {
-        setIsLoading(false);
-        return;
+      const pwd = adminPassword.trim();
+      if (!pwd) {
+        throw new Error('Debes ingresar tu contraseña de administrador');
       }
-
       if (isEditing && id) {
-        const res = await trabajosService.update(parseInt(id), formData, adminPassword);
-        if (!res.success) {
-          throw new Error(res.error || 'Error al actualizar el trabajo');
-        }
-        toast({
-          title: "Trabajo actualizado",
-          description: "El trabajo ha sido actualizado correctamente"
-        });
+        const res = await trabajosService.update(parseInt(id), formData, pwd);
+        if (!res.success) throw new Error(res.error || 'Error al actualizar el trabajo');
+        toast({ title: 'Trabajo actualizado', description: 'El trabajo ha sido actualizado correctamente' });
       } else {
-        const res = await trabajosService.create(formData, adminPassword);
-        if (!res.success) {
-          throw new Error(res.error || 'Error al crear el trabajo');
-        }
-        toast({
-          title: "Trabajo creado",
-          description: "El trabajo ha sido creado correctamente"
-        });
+        const res = await trabajosService.create(formData, pwd);
+        if (!res.success) throw new Error(res.error || 'Error al crear el trabajo');
+        toast({ title: 'Trabajo creado', description: 'El trabajo ha sido creado correctamente' });
       }
-
+      setConfirmOpen(false);
+      setAdminPassword('');
       navigate('/admin/dashboard');
-      
     } catch (error: any) {
       console.error('Error saving trabajo:', error);
       const message = error?.message || `Error al ${isEditing ? 'actualizar' : 'crear'} el trabajo`;
-      toast({ title: "Error", description: message, variant: "destructive" });
+      toast({ title: 'Error', description: message, variant: 'destructive' });
     } finally {
       setIsLoading(false);
     }
@@ -523,6 +526,33 @@ const TrabajoForm = () => {
             </form>
           </CardContent>
         </Card>
+        {/* Modal de contraseña */}
+        <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Confirmar operación</AlertDialogTitle>
+              <AlertDialogDescription>
+                Ingresa tu contraseña de administrador para {isEditing ? 'actualizar' : 'crear'} este trabajo.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <div className="space-y-2">
+              <Label htmlFor="admin_password">Contraseña</Label>
+              <Input
+                id="admin_password"
+                type="password"
+                value={adminPassword}
+                onChange={(e) => setAdminPassword(e.target.value)}
+                placeholder="••••••••"
+              />
+            </div>
+            <AlertDialogFooter>
+              <AlertDialogCancel onClick={() => setAdminPassword('')}>Cancelar</AlertDialogCancel>
+              <AlertDialogAction onClick={performSave} disabled={isLoading}>
+                {isEditing ? 'Actualizar' : 'Crear'}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </div>
   );
