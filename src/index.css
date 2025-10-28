@@ -50,6 +50,28 @@ All colors MUST be HSL.
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-glow: all 0.2s ease-out;
   }
+
+  /* Branded scrollbars */
+  /* Firefox */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(225 100% 50%) hsl(0 0% 0%);
+  }
+  /* WebKit */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: hsl(0 0% 0%);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: hsl(225 100% 50%);
+    border-radius: 8px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(225 100% 56%);
+  }
 }
 
 @layer base {
@@ -58,7 +80,22 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-background text-foreground font-anthropic;
+    @apply text-foreground font-anthropic;
+    /* Base color fallback */
+    background-color: hsl(0 0% 0%);
+    /* Animated gradient moving bottom -> top using brand blues */
+    background-image: linear-gradient(
+      180deg,
+      hsl(0 0% 0% / 1) 0%,
+      hsl(225 100% 18% / 0.75) 15%,
+      hsl(225 100% 50% / 0.40) 45%,
+      hsl(225 100% 50% / 0.40) 55%,
+      hsl(225 100% 18% / 0.75) 85%,
+      hsl(0 0% 0% / 1) 100%
+    );
+    background-size: 100% 300%;
+    animation: gradient-move-y 15s ease-in-out infinite;
+    background-attachment: fixed;
   }
 }
 
@@ -77,5 +114,29 @@ All colors MUST be HSL.
   
   .section-padding {
     @apply px-6 py-16 lg:px-8 lg:py-24;
+  }
+}
+
+@layer utilities {
+  /* Animated hero background moving bottom -> top using site colors */
+  @keyframes gradient-move-y {
+    0% { background-position: 50% 100%; }
+    50% { background-position: 50% 0%; }
+    100% { background-position: 50% 100%; }
+  }
+
+  .bg-animated-hero {
+    /* Multi-stop gradient with dark -> blue -> dark to match theme */
+    background-image: linear-gradient(
+      180deg,
+      hsl(0 0% 0%) 0%,
+      hsl(225 100% 20%) 15%,
+      hsl(225 100% 50%) 45%,
+      hsl(225 100% 50%) 55%,
+      hsl(225 100% 20%) 85%,
+      hsl(0 0% 0%) 100%
+    );
+    background-size: 100% 300%;
+    animation: gradient-move-y 15s ease-in-out infinite;
   }
 }
