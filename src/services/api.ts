@@ -119,12 +119,13 @@ export const trabajosService = {
   // Crear nuevo trabajo (RPC segura)
   create: async (trabajo: Omit<Trabajo, 'id'>, adminPassword: string): Promise<ApiResponse<Trabajo>> => {
     const user = getStoredUser();
-    const email = user?.email || user?.usuario;
+    const emailRaw = (user?.email || user?.usuario) as string | undefined;
+    const email = emailRaw?.trim().toLowerCase();
     if (!email) return { success: false, error: 'Sesión no válida' } as any;
 
     const { data, error } = await supabase.rpc('admin_create_trabajo', {
-      p_usuario: (email as string).toLowerCase(),
-      p_password: adminPassword,
+      p_usuario: email,
+      p_password: (adminPassword || '').trim(),
       p_titulo: trabajo.titulo,
       p_descripcion: trabajo.descripcion,
       p_categoria: trabajo.categoria,
@@ -143,12 +144,13 @@ export const trabajosService = {
   // Actualizar trabajo (RPC segura)
   update: async (id: number, trabajo: Partial<Trabajo>, adminPassword: string): Promise<ApiResponse<Trabajo>> => {
     const user = getStoredUser();
-    const email = user?.email || user?.usuario;
+    const emailRaw = (user?.email || user?.usuario) as string | undefined;
+    const email = emailRaw?.trim().toLowerCase();
     if (!email) return { success: false, error: 'Sesión no válida' } as any;
 
     const { data, error } = await supabase.rpc('admin_update_trabajo', {
-      p_usuario: (email as string).toLowerCase(),
-      p_password: adminPassword,
+      p_usuario: email,
+      p_password: (adminPassword || '').trim(),
       p_id: id,
       p_titulo: trabajo.titulo ?? null,
       p_descripcion: trabajo.descripcion ?? null,
@@ -168,12 +170,13 @@ export const trabajosService = {
   // Eliminar trabajo (RPC segura)
   delete: async (id: number, adminPassword: string): Promise<ApiResponse<Trabajo>> => {
     const user = getStoredUser();
-    const email = user?.email || user?.usuario;
+    const emailRaw = (user?.email || user?.usuario) as string | undefined;
+    const email = emailRaw?.trim().toLowerCase();
     if (!email) return { success: false, error: 'Sesión no válida' } as any;
 
     const { data, error } = await supabase.rpc('admin_delete_trabajo', {
-      p_usuario: (email as string).toLowerCase(),
-      p_password: adminPassword,
+      p_usuario: email,
+      p_password: (adminPassword || '').trim(),
       p_id: id,
     });
     if (error) return { success: false, error: error.message } as any;

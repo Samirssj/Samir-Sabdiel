@@ -208,13 +208,19 @@ const TrabajoForm = () => {
       }
 
       if (isEditing && id) {
-        await trabajosService.update(parseInt(id), formData, adminPassword);
+        const res = await trabajosService.update(parseInt(id), formData, adminPassword);
+        if (!res.success) {
+          throw new Error(res.error || 'Error al actualizar el trabajo');
+        }
         toast({
           title: "Trabajo actualizado",
           description: "El trabajo ha sido actualizado correctamente"
         });
       } else {
-        await trabajosService.create(formData, adminPassword);
+        const res = await trabajosService.create(formData, adminPassword);
+        if (!res.success) {
+          throw new Error(res.error || 'Error al crear el trabajo');
+        }
         toast({
           title: "Trabajo creado",
           description: "El trabajo ha sido creado correctamente"
@@ -225,15 +231,8 @@ const TrabajoForm = () => {
       
     } catch (error: any) {
       console.error('Error saving trabajo:', error);
-      
-      const errorMessage = error.response?.data?.error || 
-        `Error al ${isEditing ? 'actualizar' : 'crear'} el trabajo`;
-      
-      toast({
-        title: "Error",
-        description: errorMessage,
-        variant: "destructive"
-      });
+      const message = error?.message || `Error al ${isEditing ? 'actualizar' : 'crear'} el trabajo`;
+      toast({ title: "Error", description: message, variant: "destructive" });
     } finally {
       setIsLoading(false);
     }
