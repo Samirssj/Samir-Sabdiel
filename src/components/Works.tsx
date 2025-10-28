@@ -60,15 +60,17 @@ const Works = () => {
   });
 
   const openGithub = (work: Trabajo) => {
-    if (work.link_descarga && work.link_descarga !== '#') {
-      window.open(work.link_descarga, '_blank');
-    } else {
-      toast({
-        title: "Repositorio no disponible",
-        description: `El enlace del repositorio para "${work.titulo}" no está disponible`,
-        variant: "destructive"
-      });
+    const repo = ((work as any).link_repo_github as string) ||
+                 (((work as any).link_descarga as string)?.includes('github.com') ? (work as any).link_descarga as string : undefined);
+    if (repo && repo !== '#') {
+      window.open(repo, '_blank');
+      return;
     }
+    toast({
+      title: "Repositorio no disponible",
+      description: `El enlace del repositorio para "${work.titulo}" no está disponible`,
+      variant: "destructive"
+    });
   };
 
   const openDemo = (work: Trabajo) => {
@@ -217,7 +219,10 @@ const Works = () => {
                       onClick={() => openGithub(work)}
                       className="w-full rounded-xl bg-primary hover:bg-[hsl(225_100%_56%)] transition-colors"
                       size="sm"
-                      disabled={!work.link_descarga || work.link_descarga === '#'}
+                      disabled={
+                        !(((work as any).link_repo_github && (work as any).link_repo_github !== '#') ||
+                          (((work as any).link_descarga)?.includes('github.com')))
+                      }
                     >
                       <Github className="mr-2 h-4 w-4" />
                       Ver en Github

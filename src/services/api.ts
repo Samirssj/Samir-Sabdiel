@@ -22,7 +22,7 @@ export interface Trabajo {
   curso: string;
   tipo: string;
   imagen_url?: string;
-  link_descarga?: string;
+  link_repo_github?: string;
   url_prueba?: string;
   tecnologias: string[];
   fecha?: string;
@@ -99,7 +99,7 @@ export const trabajosService = {
   getPublic: async (): Promise<ApiResponse<Trabajo[]>> => {
     const { data, error } = await supabase
       .from('trabajos')
-      .select('id, titulo, descripcion, categoria, curso, tipo, imagen_url, link_descarga, url_prueba, tecnologias, fecha, created_at')
+      .select('id, titulo, descripcion, categoria, curso, tipo, imagen_url, link_repo_github, url_prueba, tecnologias, fecha, created_at')
       .order('created_at', { ascending: false });
     if (error) return { success: false, error: error.message };
     return { success: true, data: data || [], count: data?.length };
@@ -131,7 +131,7 @@ export const trabajosService = {
       p_curso: trabajo.curso,
       p_tipo: trabajo.tipo,
       p_tecnologias: trabajo.tecnologias,
-      p_link_descarga: trabajo.link_descarga || '',
+      p_link_repo_github: trabajo.link_repo_github || '',
       p_imagen_url: trabajo.imagen_url || '',
       p_url_prueba: trabajo.url_prueba || '',
       p_fecha: trabajo.fecha || null,
@@ -156,7 +156,7 @@ export const trabajosService = {
       p_curso: trabajo.curso ?? null,
       p_tipo: trabajo.tipo ?? null,
       p_tecnologias: trabajo.tecnologias ?? null,
-      p_link_descarga: trabajo.link_descarga ?? null,
+      p_link_repo_github: trabajo.link_repo_github ?? null,
       p_imagen_url: trabajo.imagen_url ?? null,
       p_url_prueba: trabajo.url_prueba ?? null,
       p_fecha: (trabajo as any).fecha ?? null,

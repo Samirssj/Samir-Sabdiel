@@ -14,7 +14,7 @@ const Hero = () => {
       <div className="max-w-4xl mx-auto text-center">
         <div className="space-y-6">
           <h1 className="text-4xl md:text-6xl lg:text-7xl leading-tight">
-            <span className="text-foreground">¡Bienvenido!</span>
+            <span className="text-[#0040ff]">¡Bienvenido!</span>
             <br />
             <span className="text-foreground">Te presento mi blog Académico</span>
           </h1>

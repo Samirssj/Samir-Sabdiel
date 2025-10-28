@@ -34,7 +34,7 @@ const TrabajoForm = () => {
     curso: '',
     tipo: '',
     imagen_url: '',
-    link_descarga: '',
+    link_repo_github: '',
     url_prueba: '',
     tecnologias: [],
     fecha: new Date().toISOString().split('T')[0]
@@ -63,7 +63,7 @@ const TrabajoForm = () => {
           curso: trabajo.curso,
           tipo: trabajo.tipo,
           imagen_url: trabajo.imagen_url || '',
-          link_descarga: trabajo.link_descarga || '',
+          link_repo_github: (trabajo as any).link_repo_github || (trabajo as any).link_descarga || '',
           url_prueba: (trabajo as any).url_prueba || '',
           tecnologias: trabajo.tecnologias,
           fecha: trabajo.fecha || new Date().toISOString().split('T')[0]
@@ -113,8 +113,8 @@ const TrabajoForm = () => {
       newErrors.imagen_url = 'La URL de imagen no es válida';
     }
 
-    if (formData.link_descarga && !isValidUrl(formData.link_descarga)) {
-      newErrors.link_descarga = 'La URL de descarga no es válida';
+    if (formData.link_repo_github && !isValidUrl(formData.link_repo_github)) {
+      newErrors.link_repo_github = 'La URL del repositorio no es válida';
     }
 
     setErrors(newErrors);
@@ -463,16 +463,16 @@ const TrabajoForm = () => {
 
                 {/* Link de repo en GitHub */}
                 <div className="space-y-2">
-                  <Label htmlFor="link_descarga">Link de repo en GitHub</Label>
+                  <Label htmlFor="link_repo_github">Link de repo en GitHub</Label>
                   <Input
-                    id="link_descarga"
-                    value={formData.link_descarga}
-                    onChange={handleInputChange('link_descarga')}
+                    id="link_repo_github"
+                    value={(formData as any).link_repo_github}
+                    onChange={handleInputChange('link_repo_github' as any)}
                     placeholder="https://github.com/usuario/proyecto"
-                    className={errors.link_descarga ? 'border-red-500' : ''}
+                    className={errors.link_repo_github ? 'border-red-500' : ''}
                   />
-                  {errors.link_descarga && (
-                    <p className="text-sm text-red-500">{errors.link_descarga}</p>
+                  {errors.link_repo_github && (
+                    <p className="text-sm text-red-500">{errors.link_repo_github}</p>
                   )}
                 </div>
               </div>
