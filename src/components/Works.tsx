@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Download, Search, BookOpen, Code2, Database, Github, Play } from "lucide-react";
+import { Download, Search, BookOpen, Code2, Database, Github, Play, Globe, Shield, FlaskConical } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -43,12 +43,32 @@ const Works = () => {
     }
   };
 
+  const getCategoryIcon = (id: string) => {
+    switch (id) {
+      case 'all':
+        return <BookOpen className="h-4 w-4" />;
+      case 'java':
+        return <Code2 className="h-4 w-4" />;
+      case 'web':
+        return <Globe className="h-4 w-4" />;
+      case 'database':
+        return <Database className="h-4 w-4" />;
+      case 'research':
+        return <FlaskConical className="h-4 w-4" />;
+      case 'ciberseguridad':
+        return <Shield className="h-4 w-4" />;
+      default:
+        return <BookOpen className="h-4 w-4" />;
+    }
+  };
+
   const categories = [
     { id: "all", name: "Todos", count: works.length },
     { id: "java", name: "Java", count: works.filter(w => w.categoria === "java").length },
     { id: "web", name: "Desarrollo Web", count: works.filter(w => w.categoria === "web").length },
     { id: "database", name: "Bases de Datos", count: works.filter(w => w.categoria === "database").length },
-    { id: "research", name: "Investigación", count: works.filter(w => w.categoria === "research").length }
+    { id: "research", name: "Investigación", count: works.filter(w => w.categoria === "research").length },
+    { id: "ciberseguridad", name: "Ciberseguridad", count: works.filter(w => w.categoria === "ciberseguridad").length }
   ];
 
   const filteredWorks = works.filter(work => {
@@ -90,13 +110,15 @@ const Works = () => {
       case 'java':
         return <Code2 className="h-5 w-5" />;
       case 'web':
-        return <Database className="h-5 w-5" />;
+        return <Globe className="h-5 w-5" />;
       case 'database':
         return <Database className="h-5 w-5" />;
       case 'research':
-        return <BookOpen className="h-5 w-5" />;
+        return <FlaskConical className="h-5 w-5" />;
+      case 'ciberseguridad':
+        return <Shield className="h-5 w-5" />;
       default:
-        return <Code2 className="h-5 w-5" />;
+        return <BookOpen className="h-5 w-5" />;
     }
   };
 
@@ -152,21 +174,30 @@ const Works = () => {
           </div>
 
           <div className="flex flex-wrap justify-center gap-2">
-            {categories.map((category) => (
-              <Button
-                key={category.id}
-                variant={selectedCategory === category.id ? "default" : "outline"}
-                size="sm"
-                onClick={() => setSelectedCategory(category.id)}
-                className={`rounded-xl ${
-                  selectedCategory === category.id 
-                    ? "btn-primary-glow" 
-                    : "border-primary/20 text-muted-foreground hover:border-primary/40 hover:text-primary"
-                }`}
-              >
-                {category.name} ({category.count})
-              </Button>
-            ))}
+            {categories.map((category) => {
+              const isActive = selectedCategory === category.id;
+              return (
+                <Button
+                  key={category.id}
+                  variant={isActive ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setSelectedCategory(category.id)}
+                  className={`rounded-xl transition-colors ${
+                    isActive
+                      ? "btn-primary-glow text-white"
+                      : "border-primary/20 text-muted-foreground hover:bg-[hsl(225_100%_56%)] hover:text-white hover:border-transparent"
+                  }`}
+                  aria-pressed={isActive}
+                >
+                  <span className="flex items-center gap-2">
+                    {getCategoryIcon(category.id)}
+                    <span>
+                      {category.name} ({category.count})
+                    </span>
+                  </span>
+                </Button>
+              );
+            })}
           </div>
         </div>
 

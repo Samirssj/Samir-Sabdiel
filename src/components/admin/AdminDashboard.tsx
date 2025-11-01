@@ -13,7 +13,12 @@ import {
   User,
   BookOpen,
   Github,
-  Play
+  Play,
+  Globe,
+  Shield,
+  FlaskConical,
+  Database,
+  Code2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -145,7 +150,44 @@ const AdminDashboard = () => {
     { id: 'web', name: 'Web', count: trabajos.filter(t => t.categoria === 'web').length },
     { id: 'database', name: 'Base de Datos', count: trabajos.filter(t => t.categoria === 'database').length },
     { id: 'research', name: 'Investigación', count: trabajos.filter(t => t.categoria === 'research').length },
+    { id: 'ciberseguridad', name: 'Ciberseguridad', count: trabajos.filter(t => t.categoria === 'ciberseguridad').length },
   ];
+
+  const getCategoryIcon = (id: string) => {
+    switch (id) {
+      case 'all':
+        return <BookOpen className="h-4 w-4" />;
+      case 'java':
+        return <Code2 className="h-4 w-4" />;
+      case 'web':
+        return <Globe className="h-4 w-4" />;
+      case 'database':
+        return <Database className="h-4 w-4" />;
+      case 'research':
+        return <FlaskConical className="h-4 w-4" />;
+      case 'ciberseguridad':
+        return <Shield className="h-4 w-4" />;
+      default:
+        return <BookOpen className="h-4 w-4" />;
+    }
+  };
+
+  const getWorkIcon = (categoria?: string) => {
+    switch (categoria) {
+      case 'java':
+        return <Code2 className="h-5 w-5" />;
+      case 'web':
+        return <Globe className="h-5 w-5" />;
+      case 'database':
+        return <Database className="h-5 w-5" />;
+      case 'research':
+        return <FlaskConical className="h-5 w-5" />;
+      case 'ciberseguridad':
+        return <Shield className="h-5 w-5" />;
+      default:
+        return <BookOpen className="h-5 w-5" />;
+    }
+  };
 
   const formatDate = (dateString?: string) => {
     if (!dateString) return 'Sin fecha';
@@ -269,17 +311,30 @@ const AdminDashboard = () => {
               
               {/* Category Filter */}
               <div className="flex flex-wrap gap-2">
-                {categories.map((category) => (
-                  <Button
-                    key={category.id}
-                    variant={selectedCategory === category.id ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setSelectedCategory(category.id)}
-                    className={selectedCategory === category.id ? "btn-primary-glow" : ""}
-                  >
-                    {category.name} ({category.count})
-                  </Button>
-                ))}
+                {categories.map((category) => {
+                  const isActive = selectedCategory === category.id;
+                  return (
+                    <Button
+                      key={category.id}
+                      variant={isActive ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setSelectedCategory(category.id)}
+                      className={`rounded-xl transition-colors ${
+                        isActive
+                          ? "btn-primary-glow text-white"
+                          : "border-primary/20 text-muted-foreground hover:bg-[hsl(225_100%_56%)] hover:text-white hover:border-transparent"
+                      }`}
+                      aria-pressed={isActive}
+                    >
+                      <span className="flex items-center gap-2">
+                        {getCategoryIcon(category.id)}
+                        <span>
+                          {category.name} ({category.count})
+                        </span>
+                      </span>
+                    </Button>
+                  );
+                })}
               </div>
             </div>
           </CardContent>
@@ -311,7 +366,12 @@ const AdminDashboard = () => {
                   <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
                     <div className="flex-1">
                       <div className="flex items-start justify-between mb-2">
-                        <h3 className="text-lg font-semibold">{trabajo.titulo}</h3>
+                        <div className="flex items-center gap-2">
+                          <div className="p-1.5 bg-primary/10 rounded-md text-primary border border-primary/20">
+                            {getWorkIcon(trabajo.categoria)}
+                          </div>
+                          <h3 className="text-lg font-semibold">{trabajo.titulo}</h3>
+                        </div>
                         <Badge variant="secondary" className="ml-2">
                           {trabajo.tipo}
                         </Badge>
