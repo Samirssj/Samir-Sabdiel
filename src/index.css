@@ -140,3 +140,245 @@ All colors MUST be HSL.
     animation: gradient-move-y 15s ease-in-out infinite;
   }
 }
+
+/* ==================== */
+/* ANIMACIONES MEJORADAS */
+/* ==================== */
+
+/* 1. Glitch en Títulos (Mejorado) */
+.mode-glitch h1,
+.mode-glitch h2,
+.mode-glitch .glitch-text {
+  animation: glitch 0.8s linear infinite;
+  text-shadow: 
+    0.1em 0 0 #00f,
+    -0.1em -0.05em 0 #0ff,
+    0 0 5px #00f,
+    0 0 10px #00f;
+}
+
+@keyframes glitch {
+  0%, 100% { 
+    transform: translate(0);
+    text-shadow: 
+      0.1em 0 0 #00f,
+      -0.1em -0.05em 0 #0ff,
+      0 0 5px #00f,
+      0 0 10px #00f;
+  }
+  25% { 
+    transform: translate(-0.05em, 0.05em);
+    text-shadow: 
+      -0.1em 0 0 #f0f,
+      0.1em 0.05em 0 #0ff,
+      0 0 8px #f0f,
+      0 0 15px #f0f;
+  }
+  50% { 
+    transform: translate(0.05em, -0.05em);
+    text-shadow: 
+      0.1em -0.05em 0 #0ff,
+      -0.1em 0 0 #f0f,
+      0 0 8px #0ff,
+      0 0 15px #0ff;
+  }
+  75% { 
+    transform: translate(-0.05em, 0);
+    text-shadow: 
+      -0.1em 0 0 #0ff,
+      0.1em 0.05em 0 #f0f,
+      0 0 8px #0ff,
+      0 0 15px #0ff;
+  }
+}
+
+/* 2. Pulso de Seguridad (Shield) - Mejorado */
+.mode-shield .icon-shield {
+  animation: shieldPulse 1.5s infinite ease-in-out;
+  transform-origin: center;
+  filter: drop-shadow(0 0 3px rgba(0, 100, 255, 0.8));
+}
+
+@keyframes shieldPulse {
+  0%, 100% { 
+    transform: scale(1);
+    filter: drop-shadow(0 0 5px rgba(0, 100, 255, 0.8));
+  }
+  50% { 
+    transform: scale(1.25);
+    filter: drop-shadow(0 0 15px rgba(0, 200, 255, 1));
+  }
+}
+
+/* 3. Shimmer - Mejorado */
+.mode-shimmer .shimmer-card {
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.mode-shimmer .shimmer-card::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    rgba(255, 255, 255, 0.4),
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  transform: rotate(15deg);
+  animation: shimmer 3s infinite;
+  z-index: -1;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%) rotate(15deg); }
+  100% { transform: translateX(100%) rotate(15deg); }
+}
+
+/* 4. Borde de Circuito - Mejorado */
+.mode-circuit .circuit-border {
+  --border-width: 3px;
+  position: relative;
+  border: var(--border-width) solid transparent;
+  background: linear-gradient(0deg, #001a4d, #001a4d) padding-box,
+              linear-gradient(90deg, #0040ff, #00f7ff, #0040ff) border-box;
+  border-radius: 0.5rem;
+  background-size: 200% 200%;
+  animation: circuit 4s ease infinite;
+  box-shadow: 0 0 10px rgba(0, 64, 255, 0.5);
+}
+
+@keyframes circuit {
+  0% { 
+    background-position: 0% 50%;
+    box-shadow: 0 0 10px rgba(0, 64, 255, 0.5),
+                0 0 20px rgba(0, 200, 255, 0.3);
+  }
+  50% { 
+    background-position: 100% 50%;
+    box-shadow: 0 0 15px rgba(0, 100, 255, 0.8),
+                0 0 30px rgba(0, 200, 255, 0.5);
+  }
+  100% { 
+    background-position: 0% 50%;
+    box-shadow: 0 0 10px rgba(0, 64, 255, 0.5),
+                0 0 20px rgba(0, 200, 255, 0.3);
+  }
+}
+
+/* 5. Borde Holográfico - Mejorado */
+.mode-hologram .hologram-card {
+  --border-width: 3px;
+  position: relative;
+  border: var(--border-width) solid transparent;
+  background: linear-gradient(0deg, #001a4d, #001a4d) padding-box,
+              repeating-linear-gradient(
+                45deg, 
+                #0040ff 0%, 
+                #00f7ff 25%, 
+                #0040ff 50%,
+                #00f7ff 75%,
+                #0040ff 100%
+              ) border-box;
+  border-radius: 0.5rem;
+  animation: hologram 6s linear infinite;
+  background-size: 300% 300%;
+  box-shadow: 0 0 15px rgba(0, 100, 255, 0.3);
+}
+
+@keyframes hologram {
+  0% { 
+    background-position: 0% 0%;
+    box-shadow: 0 0 15px rgba(0, 100, 255, 0.3);
+  }
+  50% { 
+    background-position: 100% 100%;
+    box-shadow: 0 0 25px rgba(0, 200, 255, 0.6);
+  }
+  100% { 
+    background-position: 0% 0%;
+    box-shadow: 0 0 15px rgba(0, 100, 255, 0.3);
+  }
+}
+
+/* 6. Línea de Tiempo - Mejorada */
+.mode-timeline .timeline-item {
+  position: relative;
+  padding-left: 2.5rem;
+  margin-bottom: 2.5rem;
+}
+
+.mode-timeline .timeline-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 4px;
+  height: 100%;
+  background: linear-gradient(to bottom, #0040ff, #00f7ff);
+  border-radius: 2px;
+  box-shadow: 0 0 10px rgba(0, 100, 255, 0.5);
+}
+
+.mode-timeline .timeline-item::after {
+  content: '';
+  position: absolute;
+  left: -6px;
+  top: 0;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #0040ff;
+  border: 3px solid #fff;
+  box-shadow: 0 0 0 3px #0040ff,
+              0 0 10px 3px rgba(0, 100, 255, 0.8);
+  animation: pulse 2s infinite ease-in-out;
+}
+
+@keyframes pulse {
+  0%, 100% { 
+    transform: scale(0.9);
+    box-shadow: 0 0 0 3px #0040ff,
+                0 0 10px 3px rgba(0, 100, 255, 0.8);
+  }
+  50% { 
+    transform: scale(1.1);
+    box-shadow: 0 0 0 3px #00f7ff,
+                0 0 20px 5px rgba(0, 200, 255, 1);
+  }
+}
+
+/* 7. Efecto Typewriter - Mejorado */
+.typewriter-text {
+  display: inline-block;
+  overflow: hidden;
+  white-space: nowrap;
+  border-right: 3px solid #0040ff;
+  animation: 
+    typing 3.5s steps(40, end),
+    blink-caret 0.75s step-end infinite;
+  font-family: monospace;
+  font-size: 1.2em;
+  color: #00f7ff;
+  text-shadow: 0 0 5px rgba(0, 200, 255, 0.5);
+}
+
+@keyframes typing {
+  from { width: 0; }
+  to { width: 100%; }
+}
+
+@keyframes blink-caret {
+  from, to { border-color: transparent; }
+  50% { 
+    border-color: #00f7ff;
+    box-shadow: 0 0 10px #00f7ff;
+  }
+}
