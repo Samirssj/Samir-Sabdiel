@@ -64,7 +64,7 @@ const Works = () => {
 
   const categories = [
     { id: "all", name: "Todos", count: works.length },
-    { id: "java", name: "Java", count: works.filter(w => w.categoria === "java").length },
+    { id: "java", name: "Programación", count: works.filter(w => w.categoria === "java").length },
     { id: "web", name: "Desarrollo Web", count: works.filter(w => w.categoria === "web").length },
     { id: "database", name: "Bases de Datos", count: works.filter(w => w.categoria === "database").length },
     { id: "research", name: "Investigación", count: works.filter(w => w.categoria === "research").length },
@@ -105,20 +105,55 @@ const Works = () => {
     }
   };
 
+  const getCategoryLabel = (categoria: string) => {
+    switch (categoria) {
+      case 'java':
+        return 'Programación';
+      case 'web':
+        return 'Desarrollo Web';
+      case 'database':
+        return 'Bases de Datos';
+      case 'research':
+        return 'Investigación';
+      case 'ciberseguridad':
+        return 'Ciberseguridad';
+      default:
+        return categoria || 'Otros';
+    }
+  };
+
+  const getCategoryColor = (categoria: string) => {
+    // Monocromático en azules, ajustado a tu paleta
+    switch (categoria) {
+      case 'java':
+        return 'hsl(225 100% 56%)'; // Programación
+      case 'web':
+        return 'hsl(225 100% 62%)'; // Desarrollo Web
+      case 'database':
+        return 'hsl(225 100% 48%)'; // Bases de Datos
+      case 'research':
+        return 'hsl(225 100% 70%)'; // Investigación
+      case 'ciberseguridad':
+        return 'hsl(225 100% 54%)'; // Ciberseguridad
+      default:
+        return 'hsl(225 100% 60%)';
+    }
+  };
+
   const getWorkIcon = (categoria: string) => {
     switch (categoria) {
       case 'java':
-        return <Code2 className="h-5 w-5" />;
+        return <Code2 className="h-5 w-5" style={{ color: getCategoryColor(categoria) }} />;
       case 'web':
-        return <Globe className="h-5 w-5" />;
+        return <Globe className="h-5 w-5" style={{ color: getCategoryColor(categoria) }} />;
       case 'database':
-        return <Database className="h-5 w-5" />;
+        return <Database className="h-5 w-5" style={{ color: getCategoryColor(categoria) }} />;
       case 'research':
-        return <FlaskConical className="h-5 w-5" />;
+        return <FlaskConical className="h-5 w-5" style={{ color: getCategoryColor(categoria) }} />;
       case 'ciberseguridad':
-        return <Shield className="h-5 w-5" />;
+        return <Shield className="h-5 w-5" style={{ color: getCategoryColor(categoria) }} />;
       default:
-        return <BookOpen className="h-5 w-5" />;
+        return <BookOpen className="h-5 w-5" style={{ color: 'hsl(225 100% 60%)' }} />;
     }
   };
 
@@ -210,7 +245,7 @@ const Works = () => {
             >
               <CardHeader className="pb-4">
                 <div className="flex items-start justify-between mb-2">
-                  <div className="p-2 bg-primary/10 rounded-lg">
+                  <div className="p-2 bg-primary/10 rounded-lg border" style={{ borderColor: getCategoryColor(work.categoria) }}>
                     {getWorkIcon(work.categoria)}
                   </div>
                   <Badge variant="secondary" className="bg-primary/20 text-primary border-primary/30">

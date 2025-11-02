@@ -38,6 +38,49 @@ export interface ApiResponse<T> {
   count?: number;
 }
 
+// ---- Site Settings (animaciones globales) ----
+export interface SiteAnimationsValue {
+  single: string;            // e.g. 'matrix' | 'none'
+  combo: string[];           // e.g. ['nodes','scanlines']
+}
+
+export const siteSettingsService = {
+  // Lee la fila de configuraciones
+  getAnimations: async (): Promise<ApiResponse<SiteAnimationsValue>> => {
+    const { data, error } = await supabase
+      .from('site_settings')
+      .select('key, value')
+      .eq('key', 'animations')
+      .maybeSingle();
+    if (error) return { success: false, error: error.message };
+    const value = (data?.value as SiteAnimationsValue) || { single: 'none', combo: [] };
+    return { success: true, data: value };
+  },
+
+  // Guarda/actualiza la configuración
+  upsertAnimations: async (value: SiteAnimationsValue): Promise<ApiResponse<null>> => {
+    const { error } = await supabase
+      .from('site_settings')
+      .upsert({ key: 'animations', value, updated_at: new Date().toISOString() }, { onConflict: 'key' });
+    if (error) return { success: false, error: error.message };
+    return { success: true } as ApiResponse<null>;
+  },
+
+  // Suscribirse a cambios en tiempo real
+  subscribeAnimations: (onChange: (v: SiteAnimationsValue) => void) => {
+    const channel = supabase
+      .channel('public:site_settings')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'site_settings', filter: 'key=eq.animations' }, (payload: any) => {
+        const row = payload.new || payload.record;
+        if (row?.value) onChange(row.value as SiteAnimationsValue);
+      })
+      .subscribe();
+    return () => {
+      try { supabase.removeChannel(channel); } catch {}
+    };
+  }
+};
+
 // Servicios de autenticación
 export const authService = {
   login: async (credentials: LoginCredentials): Promise<LoginResponse> => {

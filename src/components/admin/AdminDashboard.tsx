@@ -23,6 +23,13 @@ import {
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { 
   AlertDialog,
@@ -41,6 +48,7 @@ import {
   getStoredUser, 
   type Trabajo 
 } from '@/services/api';
+import { siteSettingsService } from '@/services/api';
 
 const AdminDashboard = () => {
   const [trabajos, setTrabajos] = useState<Trabajo[]>([]);
@@ -53,6 +61,50 @@ const AdminDashboard = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const user = getStoredUser();
+  const [siteAnim, setSiteAnim] = useState<string>(() =>
+    (typeof window !== 'undefined' && (localStorage.getItem('site_animation') || 'none')) || 'none'
+  );
+  const [siteAnims, setSiteAnims] = useState<string[]>(() => {
+    if (typeof window === 'undefined') return [];
+    const raw = localStorage.getItem('site_animations');
+    if (!raw) return [];
+    try { return JSON.parse(raw) as string[]; } catch { return []; }
+  });
+
+  const availableAnims = [
+    { id: 'matrix', label: 'Lluvia de datos' },
+    { id: 'scanlines', label: 'Scanlines' },
+    { id: 'radar', label: 'Radar' },
+    { id: 'nodes', label: 'Red de nodos' },
+    { id: 'particles', label: 'Partículas' },
+    { id: 'glitch', label: 'Glitch en títulos' },
+    { id: 'shield', label: 'Pulso Ciberseguridad' },
+    { id: 'circuit', label: 'Borde circuito' },
+    { id: 'typewriter', label: 'Typewriter' },
+    { id: 'shimmer', label: 'Shimmer skeletons' },
+    { id: 'hologram', label: 'Borde holográfico' },
+    { id: 'timeline', label: 'Línea de tiempo' },
+  ];
+
+  const toggleAnim = (id: string) => {
+    setSiteAnims(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+  };
+
+  const applyAnimations = async () => {
+    // Persist locally (draft -> applied)
+    localStorage.setItem('site_animation', siteAnim);
+    localStorage.setItem('site_animations', JSON.stringify(siteAnims));
+    // Persist in Supabase
+    const res = await siteSettingsService.upsertAnimations({ single: siteAnim, combo: siteAnims });
+    if (!res.success) {
+      toast({ title: 'No se pudo sincronizar', description: res.error || 'Intenta nuevamente.', variant: 'destructive' });
+      return;
+    }
+    // Notify overlays in this tab
+    window.dispatchEvent(new StorageEvent('storage', { key: 'site_animation', newValue: siteAnim }));
+    window.dispatchEvent(new StorageEvent('storage', { key: 'site_animations', newValue: JSON.stringify(siteAnims) }));
+    toast({ title: 'Animaciones aplicadas', description: 'Sincronizado en todos los dispositivos.' });
+  };
 
   // Cargar trabajos al montar el componente
   useEffect(() => {
@@ -146,7 +198,7 @@ const AdminDashboard = () => {
 
   const categories = [
     { id: 'all', name: 'Todos', count: trabajos.length },
-    { id: 'java', name: 'Java', count: trabajos.filter(t => t.categoria === 'java').length },
+    { id: 'java', name: 'Programación', count: trabajos.filter(t => t.categoria === 'java').length },
     { id: 'web', name: 'Web', count: trabajos.filter(t => t.categoria === 'web').length },
     { id: 'database', name: 'Base de Datos', count: trabajos.filter(t => t.categoria === 'database').length },
     { id: 'research', name: 'Investigación', count: trabajos.filter(t => t.categoria === 'research').length },
@@ -296,46 +348,91 @@ const AdminDashboard = () => {
 
         {/* Filters */}
         <Card className="card-glow mb-6">
-          <CardContent className="pt-6">
+          <CardContent className="pt-6 space-y-4">
+            {/* Row 1: Search full width */}
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Buscar trabajos..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+
+            {/* Row 2: Animation controls */}
             <div className="flex flex-col md:flex-row gap-4">
-              {/* Search */}
-              <div className="flex-1 relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Buscar trabajos..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
-                />
+              <div className="w-full md:w-72">
+                <label className="block text-sm text-muted-foreground mb-1">Animación del sitio</label>
+                <Select
+                  value={siteAnim}
+                  onValueChange={(val) => {
+                    setSiteAnim(val);
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Seleccionar animación" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">Sin animación</SelectItem>
+                    {availableAnims.map(a => (
+                      <SelectItem key={a.id} value={a.id}>{a.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
-              
-              {/* Category Filter */}
-              <div className="flex flex-wrap gap-2">
-                {categories.map((category) => {
-                  const isActive = selectedCategory === category.id;
-                  return (
-                    <Button
-                      key={category.id}
-                      variant={isActive ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => setSelectedCategory(category.id)}
-                      className={`rounded-xl transition-colors ${
-                        isActive
-                          ? "btn-primary-glow text-white"
-                          : "border-primary/20 text-muted-foreground hover:bg-[hsl(225_100%_56%)] hover:text-white hover:border-transparent"
-                      }`}
-                      aria-pressed={isActive}
-                    >
-                      <span className="flex items-center gap-2">
-                        {getCategoryIcon(category.id)}
-                        <span>
-                          {category.name} ({category.count})
-                        </span>
+              <div className="flex-1">
+                <label className="block text-sm text-muted-foreground mb-1">Combinar animaciones</label>
+                <div className="flex flex-wrap gap-2">
+                  {availableAnims.map(a => {
+                    const active = siteAnims.includes(a.id);
+                    return (
+                      <Button
+                        key={a.id}
+                        size="sm"
+                        variant={active ? 'default' : 'outline'}
+                        className={`rounded-xl ${active ? 'btn-primary-glow text-white' : 'border-primary/20 text-muted-foreground hover:bg-[hsl(225_100%_56%)] hover:text-white hover:border-transparent'}`}
+                        onClick={() => toggleAnim(a.id)}
+                        aria-pressed={active}
+                        title={a.label}
+                      >
+                        {a.label}
+                      </Button>
+                    );
+                  })}
+                </div>
+              </div>
+              <div className="md:self-end">
+                <Button onClick={applyAnimations} className="btn-primary-glow px-6">Aplicar</Button>
+              </div>
+            </div>
+
+            {/* Row 3: Category chips */}
+            <div className="flex flex-wrap gap-2">
+              {categories.map((category) => {
+                const isActive = selectedCategory === category.id;
+                return (
+                  <Button
+                    key={category.id}
+                    variant={isActive ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setSelectedCategory(category.id)}
+                    className={`rounded-xl transition-colors ${
+                      isActive
+                        ? "btn-primary-glow text-white"
+                        : "border-primary/20 text-muted-foreground hover:bg-[hsl(225_100%_56%)] hover:text-white hover:border-transparent"
+                    }`}
+                    aria-pressed={isActive}
+                  >
+                    <span className="flex items-center gap-2">
+                      {getCategoryIcon(category.id)}
+                      <span>
+                        {category.name} ({category.count})
                       </span>
-                    </Button>
-                  );
-                })}
-              </div>
+                    </span>
+                  </Button>
+                );
+              })}
             </div>
           </CardContent>
         </Card>
